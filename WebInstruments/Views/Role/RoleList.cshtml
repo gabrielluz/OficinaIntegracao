@@ -1,0 +1,89 @@
+﻿@model WebInstruments.ViewModels.NewRoleViewModel
+@{
+    ViewBag.Title = "Papéis";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@Scripts.Render("~/bundles/bootstrap")
+<h2>Papéis dos Usuários</h2>
+<button type="button" id="myBtn" class="btn btn-sm btn-primary btn-create">Adicionar</button>
+
+<table id="myTable" class="table table-striped table-bordered" cellspacing="0">
+    <thead>
+        <tr>
+            <th><span class="glyphicon glyphicon-cog"></span></th>
+            <th>Nome</th>
+            <th>Acesso ao sistema</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Roles)
+        {
+            <tr>
+                <td align="center">
+                    <button class="btn btn-primary btn-xs" data-title="Edit" onclick="editRole(@item.Id)"><span class="glyphicon glyphicon-pencil"></span></button>
+                    <button class="btn btn-danger btn-xs" data-title="Delete" onclick="remove(@item.Id, '/Role/Remove')"><span class="glyphicon glyphicon-trash"></span></button>
+                </td>
+                <td>@item.Name</td>
+                @if (item.HasAccess)
+                {
+                    <td>Sim</td>
+                }
+                else
+                {
+                    <td>Não</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        @using (Html.BeginForm("Save", "Role"))
+        {
+            <h3>Papél de Usuário</h3><hr />
+            @Html.HiddenFor(r => r.Role.Id, new { id = "rId" })
+            <div class="form-group">
+                <label>Nome</label>
+                @Html.TextBoxFor(r => r.Role.Name, new { @class = "form-control", id = "rName" })
+            </div>
+            <div class="checkbox">
+                <label>
+                    @Html.CheckBoxFor(m => m.Role.HasAccess, new { @id = "aHasAccess" }) Possui acesso?
+                </label>
+            </div>
+            <hr />
+            <div class="text-right">
+                <input type="submit" class="btn btn-success" value="Salvar" />
+                <button class="btn btn-danger" type="button" id="myCloseBtn">Cancelar</button>
+            </div>
+        }
+    </div>
+</div>
+
+<script src="~/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/datatables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="~/Content/datatables.min.css" />
+<script src="~/Scripts/functions.js"></script>
+
+<script>
+    function editRole(id) {
+        $.ajax({
+            url: '/Role/getData',
+            type: 'POST',
+            data: { id: id },
+            error: function () {
+                alert("Não foi possível editar o papel de usuário!");
+            },
+            success: function (data) {
+                var obj = JSON.parse(data);
+                document.getElementById('rId').value = obj.Id;
+                document.getElementById('rName').value = obj.Name;
+                document.getElementById('aHasAccess').checked = obj.HasAccess;
+
+                modal.style.display = "block";
+            }
+        });
+    }
+</script>

@@ -1,0 +1,15 @@
+﻿@using WebInstruments.Models
+@if (HttpContext.Current.Session["User"] != null)
+{
+    <ul class="nav navbar-nav navbar-right">
+        @{WebInstruments.Models.User us = HttpContext.Current.Session["User"] as User;}
+        <li><a href="#">@us.Name</a></li>
+        <li>@Html.ActionLink("Sair", "Logoff", "Account")</li>
+    </ul>
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li>@Html.ActionLink("Entrar", "Login", "Account", routeValues: null, htmlAttributes: new {id = "loginLink"})</li>
+    </ul>
+}

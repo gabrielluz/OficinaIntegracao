@@ -1,0 +1,156 @@
+﻿@model WebInstruments.ViewModels.NewSupplierViewModel
+@{
+    ViewBag.Title = "Fornecedores";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@Scripts.Render("~/bundles/bootstrap")
+<h2>Fornecedores</h2>
+
+<button type="button" id="myBtn" class="btn btn-sm btn-primary btn-create">Adicionar</button>
+
+<table id="myTable" class="table table-striped table-bordered" cellspacing="0">
+    <thead>
+        <tr>
+            <th><span class="glyphicon glyphicon-cog"></span></th>
+            <th>Nome</th>
+            <th>Cnpj</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Suppliers)
+        {
+            <tr>
+                <td align="center">
+                    <button class="btn btn-primary btn-xs" data-title="Edit" onclick="editSupplier(@item.Id)"><span class="glyphicon glyphicon-pencil"></span></button>
+                    <button class="btn btn-danger btn-xs" data-title="Delete" onclick="remove(@item.Id, '/Supplier/Remove')"><span class="glyphicon glyphicon-trash"></span></button>
+                </td>
+                <td>@item.Name</td>
+                <td>@item.CNPJ</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        @using (Html.BeginForm("Save", "Supplier"))
+        {
+            <h3>Fornecedor</h3><hr />
+            @Html.HiddenFor(mu => mu.Supplier.Id, new { id = "sId" })
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Nome</label>
+                    @Html.TextBoxFor(mu => mu.Supplier.Name, new { @class = "form-control", id = "sName" })
+
+                    <label>CNPJ</label>
+                    @Html.TextBoxFor(mu => mu.Supplier.CNPJ, new { @class = "form-control", id = "sCNPJ" })
+
+                    <label>Estado</label>
+                    @Html.DropDownListFor(mu => mu.Address.IdState, new SelectList(Model.States, "Id", "Name"), new { @class = "form-control text-right", id = "aState" })
+
+                    <label>Cidade</label>
+                    @Html.DropDownListFor(mu => mu.Address.IdCity, new SelectList( "Id", "Name"), new { @class = "form-control", id = "aCity" })
+                    
+                </div>
+                <div class="col-md-6">
+                    @Html.HiddenFor(mu => mu.Address.Id, new { id = "aId" })
+                    <label>Rua</label>
+                    @Html.TextBoxFor(mu => mu.Address.Street, new {@class = "form-control", id = "aStreet"})
+
+                    <label>Complemento</label>
+                    @Html.TextBoxFor(mu => mu.Address.Complement, new {@class = "form-control", id = "aComplement"})
+
+                    <label>Número</label>
+                    @Html.TextBoxFor(mu => mu.Address.Number, new {@class = "form-control", id = "aNumber", type = "number"})
+
+                    <label>CEP</label>
+                    @Html.TextBoxFor(mu => mu.Address.Cep, new {@class = "form-control", id = "aCep"})
+                </div>
+            </div><hr />
+                <div class="text-right">
+                    <input type="submit" class="btn btn-success" value="Salvar" />
+                    <button class="btn btn-danger" type="button" id="myCloseBtn">Cancelar</button>
+                </div>
+                }
+            </div>
+        </div>
+
+<script src="~/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/datatables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="~/Content/datatables.min.css" />
+<script src="~/Scripts/functions.js"></script>
+
+<script>
+    function editSupplier(id) {
+        $.ajax({
+            url: '/Supplier/GetData',
+            type: 'POST',
+            data: { id: id },
+            error: function () {
+                alert("Não foi possível editar o fornecedor!");
+            },
+            success: function (data) {
+                var obj = JSON.parse(data);
+                document.getElementById('sId').value = obj.Id;
+                document.getElementById('sName').value = obj.Name;
+                document.getElementById('sCNPJ').value = obj.CNPJ;
+                document.getElementById('aId').value = obj.AddressSup.Id;
+                document.getElementById('aStreet').value = obj.AddressSup.Street;
+                document.getElementById('aNumber').value = obj.AddressSup.Number;
+                document.getElementById('aComplement').value = obj.AddressSup.Complement;
+                document.getElementById('aCep').value = obj.AddressSup.Cep;
+                document.getElementById('aCity').value = obj.AddressSup.IdCity;
+                document.getElementById('aState').value = obj.AddressSup.IdState;
+                modal.style.display = "block";
+            }
+        });
+    }
+
+    $('#aState').on('change', function () {
+        var cityDropdown = $('#aCity');
+        cityDropdown.prop('disabled', 'disabled');
+        cityDropdown.empty();
+
+        var idState = $(this).val();
+                    
+        realizarRequisicaoCidades(idState, cityDropdown);
+    });
+
+    (function ($) {
+        $(function () {
+            inicializadorComboCidades.init();
+        });
+        var inicializadorComboCidades = {
+            init: function () {
+                var cityDropdown = $('#aCity');
+                cityDropdown.prop('disabled', 'disabled');
+                cityDropdown.empty();
+
+                var idState = $('#aState').val();
+                realizarRequisicaoCidades(idState, cityDropdown);
+            }
+        };
+    })(jQuery);
+
+    function realizarRequisicaoCidades (idState, cityDropdown) {
+        $.ajax({
+            type: 'GET',
+            url: '/City/GetCitiesByStateId',
+            data: { idState: idState },
+            dataType: "json",
+            error: function () {
+                alert("error");
+            },
+            success: function (data) {
+                cityDropdown.removeProp('disabled');
+                $.each(data, function (i, city) {
+                    var option = $('<option value="' + city.Id + '">' + city.Name + '</option>');
+                    cityDropdown.append(option);
+                });
+            }
+        });
+    }
+
+</script>

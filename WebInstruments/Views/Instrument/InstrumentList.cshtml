@@ -1,0 +1,106 @@
+﻿@using System.Web.UI.WebControls
+@using WebInstruments.Models
+@model WebInstruments.ViewModels.NewInstrumentViewModel
+@{
+    ViewBag.Title = "Instrumentos";
+}
+
+@Scripts.Render("~/bundles/bootstrap")
+<h2>Instrumentos</h2>
+<button type="button" id="myBtn" class="btn btn-sm btn-primary btn-create">Adicionar</button>
+
+<table id="myTable" class="table table-striped table-bordered" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th><span class="glyphicon glyphicon-cog"></span></th>
+            <th>Código</th>
+            <th>Tipo de Instrumento</th>
+            <th>Faixa</th>
+            <th>Fornecedor</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Instruments)
+        {
+            <tr>
+                <td align="center">
+                    <button class="btn btn-default btn-xs" data-title="Borrow" ><span class="glyphicon glyphicon-share-alt"></span></button>
+                    <button class="btn btn-primary btn-xs" data-title="Edit" onclick="editInstrument(@item.Id)"><span class="glyphicon glyphicon-pencil"></span></button>
+                    <button class="btn btn-danger btn-xs" data-title="Delete" onclick="remove(@item.Id, '/Instrument/Remove')"><span class="glyphicon glyphicon-trash"></span></button>
+                </td>
+                <td>@item.Code</td>
+                <td>@item.InstrumentType.Name</td>
+                <td>@item.MinimumValue à @item.MaximumValue @item.MeasurementUnit.Acronym</td>
+                <td>@item.Supplier.Name</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        @using (Html.BeginForm("Save", "Instrument"))
+        {
+            <h3>Instrumento</h3><hr />
+            @Html.HiddenFor(m => m.Instrument.Id, new { id = "iId" })
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Codigo</label>
+                    @Html.TextBoxFor(m => m.Instrument.Code, new { @class = "form-control", id = "iCode" })
+
+                    <label>Tipo de Instrumento</label>
+                    @Html.DropDownListFor(m => m.Instrument.IdInstrumentType, new SelectList(Model.InstrumentTypes, "Id", "Name"), new { @class = "form-control", id = "iInstrumentType" })
+
+                    <label>Fornecedor</label>
+                    @Html.DropDownListFor(m => m.Instrument.IdSupplier, new SelectList(Model.Suppliers, "Id", "Name"), new { @class = "form-control", id = "iSupplier" })
+                </div>
+                <div class="col-md-6">
+                    <label>Unidade de Medida</label>
+                    @Html.DropDownListFor(m => m.Instrument.IdMeasurementUnit, new SelectList(Model.MeasurementUnits, "Id", "Name"), new { @class = "form-control", id = "iMeasurementUnit" })
+
+                    <label>Valor Mínimo</label>
+                    @Html.TextBoxFor(m => m.Instrument.MinimumValue, new { @class = "form-control", type = "number", id = "iMinimumValue" })
+                    
+                    <label>Valor Máximo</label>
+                    @Html.TextBoxFor(m => m.Instrument.MaximumValue, new { @class = "form-control", type = "number", id = "iMaximumValue" })
+                </div>
+            </div>
+            <hr />
+            <div class="text-right">
+                <input type="submit" class="btn btn-success" value="Salvar" />
+                <button class="btn btn-danger" type="button" id="myCloseBtn">Cancelar</button>
+            </div>
+        }
+    </div>
+</div>
+
+
+
+<script src="~/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/datatables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="~/Content/datatables.min.css" />
+<script src="~/Scripts/functions.js"></script>
+
+<script>
+    function editInstrument(id) {
+        $.ajax({
+            url: '/Instrument/getData',
+            type: 'POST',
+            data: { id: id },
+            error: function () {
+                alert("Não foi possível editar o instrumento!");
+            },
+            success: function (data) {
+                var obj = JSON.parse(data);
+                document.getElementById('iId').value = obj.Id;
+                document.getElementById('iCode').value = obj.Code;
+                document.getElementById('iMeasurementUnit').value = obj.IdMeasurementUnit;
+                document.getElementById('iInstrumentType').value = obj.IdInstrumentType;
+                document.getElementById('iMinimumValue').value = obj.MinimumValue;
+                document.getElementById('iMaximumValue').value = obj.MaximumValue;
+                document.getElementById('iSupplier').value = obj.IdSupplier;
+                modal.style.display = "block";
+            }
+        });
+    }
+</script>

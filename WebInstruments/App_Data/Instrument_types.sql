@@ -1,0 +1,10 @@
+﻿INSERT INTO InstrumentType(Name) VALUES('Paquímetro');
+INSERT INTO InstrumentType(Name) VALUES('Balança');
+INSERT INTO InstrumentType(Name) VALUES('Manômetro');
+INSERT INTO InstrumentType(Name) VALUES('Micro pipeta');
+INSERT INTO InstrumentType(Name) VALUES('Trena');
+INSERT INTO InstrumentType(Name) VALUES('Termômetro');
+INSERT INTO InstrumentType(Name) VALUES('Multímetro');
+INSERT INTO InstrumentType(Name) VALUES('Micrômetro');
+INSERT INTO InstrumentType(Name) VALUES('Régua');
+INSERT INTO InstrumentType(Name) VALUES('Transdutor de pressão');

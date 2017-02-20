@@ -1,0 +1,158 @@
+﻿@model WebInstruments.ViewModels.NewDashboardViewModel
+
+@{
+    ViewBag.Title = "Dashboard";
+}
+
+@Scripts.Render("~/bundles/bootstrap")
+<h2>Dashboard</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="piechart" style="width: 400px; height: 250px;"></div>
+                </div>
+                <div class="panel-footer">Tipos de Instrumentos</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                        @if (Model.Instruments.Count == 0)
+                        {
+                            <p>Sem Instrumentos cadastrados</p>
+                        }
+                        else
+                        {
+                            <table class="table table-striped" style="margin-top: 12px">
+                                <thead>
+                                <tr>
+                                    <th>Instrumento</th>
+                                    <th>Tipo</th>
+                                    <th>Usuario</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var item in Model.Instruments)
+                                {
+                                    <tr>
+                                        <td>@item.Code</td>
+                                        <td>@item.InstrumentType.Name</td>
+                                        <td>@item.User.Name</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        }
+                </div>
+                <div class="panel-footer">Últimos Instrumentos</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script src="~/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/datatables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="~/Content/datatables.min.css" />
+<script src="~/Scripts/functions.js"></script>
+
+<script>
+
+    $(function() {
+        $('.panel')
+            .hover(function() {
+                    $(this).find('.panel-footer').slideDown(250);
+                },
+                function() {
+                    $(this).find('.panel-footer').slideUp(250); //.fadeOut(205)
+                });
+    });
+
+    google.charts.load('current', { 'packages': ['corechart'] });
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+        $.ajax({
+            url: '/Dashboard/GetInstrumentTypes',
+            type: 'POST',
+            error: function () {
+                alert("Não foi possível editar o fornecedor!");
+            },
+            success: function (data) {
+                var resposta = JSON.parse(data);
+                var dataTable = new google.visualization.arrayToDataTable(resposta);
+                var options = {
+                    is3D: true,
+                    chartArea: { left: "15%", top: "17%", width: "60%", height: "50%" }
+                };
+
+                var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+                chart.draw(dataTable, options);
+            }
+        });
+
+        //var data = google.visualization.arrayToDataTable([
+        //    ['Tipos de Instrumento', 'Total'],
+        //    ['Paquímetro', 11],
+        //    ['Manômetro', 2],
+        //    ['Balança', 2],
+        //    ['Trena', 2],
+        //    ['Régua', 7]
+        //]);
+
+        
+    }
+
+
+    google.charts.load('current', { packages: ['corechart', 'line'] });
+    google.charts.setOnLoadCallback(drawBasic);
+
+    function drawBasic() {
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('number', 'X');
+        data.addColumn('number', 'Y');
+
+        data.addRows([
+            [11,0],[12,1],[13,2],[14,3]
+        ]);
+
+        var options = {
+            hAxis: {
+                title: 'Tempo'
+            },
+            vAxis: {
+                title: 'Acessos'
+            },
+            chartArea: { left: "20%", top: "25%", width: "60%", height: "70%" }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+    }
+</script>
+<style>
+    .panel-default{
+    text-align:center;
+    cursor:pointer;
+    font-family: 'Raleway',sans-serif;
+}
+.panel-default > .panel-footer {
+    color: #fff;
+    background-color: #47c8ed;    
+    display:none;
+    text-shadow: 1px 1px 1px rgba(150, 150, 150, 1);
+}
+.panel-default i{
+    font-size: 5em;
+    }
+</style>

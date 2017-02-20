@@ -1,0 +1,42 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+    font-size: 14px;
+}
+
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+.modal {
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+.modal-content {
+    margin: 15% auto; /* 15% from the top and centered */
+    margin-top: 80px;
+    width: 80%;
+    padding: 20px;
+}
+
+.table td {
+   text-align: center;   
+}
+
+.table th {
+   text-align: center;   
+}
+
+
